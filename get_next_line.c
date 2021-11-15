@@ -6,14 +6,33 @@
 /*   By: ajaidi <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/14 16:06:41 by ajaidi            #+#    #+#             */
-/*   Updated: 2021/11/14 21:03:07 by ajaidi           ###   ########.fr       */
+/*   Updated: 2021/11/15 06:53:12 by ajaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
 size_t	ft_strlen(const char *s);
-#define BUFFER_SIZE 42 
+#define BUFFER_SIZE 200 
+
+char	*ft_strdup(const char *s1)
+{
+	int		i;
+	char	*ptr;
+
+	i = 0;
+	while (s1[i])
+		i++;
+	ptr = (char *)malloc(i * sizeof(char) + 1);
+	if (!ptr)
+		return (NULL);
+	i = -1;
+	while (s1[++i])
+		ptr[i] = s1[i];
+	ptr[i] = 0;
+	return (ptr);
+}
+
 char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
 	char	*ptr;
@@ -94,6 +113,8 @@ char	*get_next_line(int fd)
 	char	*str;
 	static char	*rtnn;
 	char	*rtn;
+	static char	*rttn;
+	rttn = malloc(1);
 	str = malloc(BUFFER_SIZE + 1);
 	str[BUFFER_SIZE + 1] = 0;
 	rtn = malloc(1);
@@ -107,27 +128,44 @@ char	*get_next_line(int fd)
 			{
 				if(i < BUFFER_SIZE)
 				{
-					rtnn = ft_substr(str, i + 1, (i - BUFFER_SIZE));
+					rttn = ft_strdup(rtnn);
+					rtnn = ft_substr(str, i + 1 , (i - BUFFER_SIZE));
 				}
 				str[i + 1] = 0;
-				rtn = ft_strjoin(rtnn, str);
-				return rtn;
+				rttn = ft_strjoin(rttn, str);
+				return rttn;
 			}
 			if (!str[i + 1])
 			{
 				rtnn = ft_strjoin(rtnn, str);
-				printf("%s\n", rtnn);
 			}
 			i++;
 		}
 	}
-	return (NULL);
+	i = 0;
+	if (!(read(fd, str, BUFFER_SIZE)))
+	{
+		printf("%s\n",rtnn);
+		while(rtnn[i])
+		{
+			if (rtnn[i] == '\n')
+			{
+				rtnn[i + 1] = 0;
+				return rtnn;
+			}
+			i++;
+		}
+
+	}
+	return ("anas");
 }
 
 int	main(void)
 {
 	int fd = open("anas.txt", O_RDWR);
 	char	*str = get_next_line(fd);
+	printf("%s\n",str);
+	str = get_next_line(fd);
 	printf("%s\n",str);
 	str = get_next_line(fd);
 	printf("%s\n",str);
