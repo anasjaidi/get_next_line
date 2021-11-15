@@ -13,7 +13,7 @@
 #include "get_next_line.h"
 
 size_t	ft_strlen(const char *s);
-#define BUFFER_SIZE 200 
+#define BUFFER_SIZE 42 
 
 char	*ft_strdup(const char *s1)
 {
@@ -100,7 +100,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	if (!ptr)
 		return (NULL);
 	ft_memmove(ptr, s1, i1);
-	ft_memmove(ptr + i1, s2, i2 + 1);
+	ft_memmove(ptr + i1, s2, i2);
 	ptr[i1 + i2] = 0;
 	return (ptr);
 }
@@ -109,6 +109,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 
 char	*get_next_line(int fd)
 {
+	int	x;
 	int	i;
 	char	*str;
 	static char	*rtnn;
@@ -119,7 +120,8 @@ char	*get_next_line(int fd)
 	str[BUFFER_SIZE + 1] = 0;
 	rtn = malloc(1);
 	rtnn  = malloc(1);
-	while (read(fd, str, BUFFER_SIZE))
+	x = read(fd, str, BUFFER_SIZE);
+	while (x)
 	{
 		i = 0;
 		while (str[i])
@@ -129,7 +131,8 @@ char	*get_next_line(int fd)
 				if(i < BUFFER_SIZE)
 				{
 					rttn = ft_strdup(rtnn);
-					rtnn = ft_substr(str, i + 1 , (i - BUFFER_SIZE));
+					rtnn = ft_substr(str, i + 1 , (BUFFER_SIZE - i - 1));
+					printf("this is rtnn	%s\n", rtnn);
 				}
 				str[i + 1] = 0;
 				rttn = ft_strjoin(rttn, str);
@@ -141,16 +144,15 @@ char	*get_next_line(int fd)
 			}
 			i++;
 		}
+		x = read(fd, str, BUFFER_SIZE);
 	}
 	i = 0;
-	if (!(read(fd, str, BUFFER_SIZE)))
+	if (!x)
 	{
-		printf("%s\n",rtnn);
 		while(rtnn[i])
 		{
 			if (rtnn[i] == '\n')
 			{
-				rtnn[i + 1] = 0;
 				return rtnn;
 			}
 			i++;
