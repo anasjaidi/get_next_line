@@ -13,7 +13,18 @@
 #include "get_next_line.h"
 
 size_t	ft_strlen(const char *s);
-#define BUFFER_SIZE 42 
+#define BUFFER_SIZE 1
+
+void	ft_bzero(void *s, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	if (!n)
+		return ;
+	while (i < n)
+		*(char *)(s + i++) = 0;
+}
 
 char	*ft_strdup(const char *s1)
 {
@@ -105,70 +116,67 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (ptr);
 }
 
-
-
 char	*get_next_line(int fd)
 {
-	int	x;
-	int	i;
+	static char	*buffer_reminder;
 	char	*str;
-	static char	*rtnn;
 	char	*rtn;
-	static char	*rttn;
-	rttn = malloc(1);
-	str = malloc(BUFFER_SIZE + 1);
-	str[BUFFER_SIZE + 1] = 0;
+	static int	l;
+	int	i = 0;
+	str = (char*)malloc(BUFFER_SIZE + 1);
+	str[BUFFER_SIZE + i] = 0;
 	rtn = malloc(1);
-	rtnn  = malloc(1);
-	x = read(fd, str, BUFFER_SIZE);
-	while (x)
+	if (buffer_reminder)
+	{
+		while (buffer_reminder[i])
+		{
+			if (buffer_reminder[i] == '\n')
+			{
+				if (i < (int)ft_strlen(buffer_reminder))
+				{
+					rtn = ft_substr(buffer_reminder, 0 , i);
+					buffer_reminder = ft_substr(buffer_reminder, i + 1, (ft_strlen(buffer_reminder) - i));
+					return rtn;
+				}
+				return (buffer_reminder);
+			}
+			i++;
+		}
+		rtn = ft_strjoin(rtn, buffer_reminder);
+	}
+	l = read(fd, str, BUFFER_SIZE);
+	while (l)
 	{
 		i = 0;
 		while (str[i])
 		{
 			if (str[i] == '\n')
 			{
-				if(i < BUFFER_SIZE)
-				{
-					rttn = ft_strdup(rtnn);
-					rtnn = ft_substr(str, i + 1 , (BUFFER_SIZE - i - 1));
-					printf("this is rtnn	%s\n", rtnn);
-				}
+				if (i < BUFFER_SIZE)
+					buffer_reminder = ft_substr(str, i + 1, (BUFFER_SIZE - i));
 				str[i + 1] = 0;
-				rttn = ft_strjoin(rttn, str);
-				return rttn;
+				return (ft_strjoin(rtn, str));
 			}
 			if (!str[i + 1])
 			{
-				rtnn = ft_strjoin(rtnn, str);
+				rtn = ft_strjoin(rtn, str);
 			}
 			i++;
 		}
-		x = read(fd, str, BUFFER_SIZE);
+		ft_bzero(str, BUFFER_SIZE + 1);
+		l = read(fd, str, BUFFER_SIZE);
 	}
-	i = 0;
-	if (!x)
-	{
-		while(rtnn[i])
-		{
-			if (rtnn[i] == '\n')
-			{
-				return rtnn;
-			}
-			i++;
-		}
-
-	}
-	return ("anas");
+	return (NULL);
 }
 
 int	main(void)
 {
 	int fd = open("anas.txt", O_RDWR);
 	char	*str = get_next_line(fd);
-	printf("%s\n",str);
-	str = get_next_line(fd);
-	printf("%s\n",str);
-	str = get_next_line(fd);
-	printf("%s\n",str);
+	printf("%s", str);
+	while (str)
+	{
+		printf("%s", str);
+		str = get_next_line(fd);
+	}
 }
