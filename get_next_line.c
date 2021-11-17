@@ -6,25 +6,15 @@
 /*   By: ajaidi <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/14 16:06:41 by ajaidi            #+#    #+#             */
-/*   Updated: 2021/11/15 06:53:12 by ajaidi           ###   ########.fr       */
+/*   Updated: 2021/11/17 01:48:06 by ajaidi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
 size_t	ft_strlen(const char *s);
-#define BUFFER_SIZE 1
+#define BUFFER_SIZE 1000000
 
-void	ft_bzero(void *s, size_t n)
-{
-	size_t	i;
-
-	i = 0;
-	if (!n)
-		return ;
-	while (i < n)
-		*(char *)(s + i++) = 0;
-}
 
 char	*ft_strdup(const char *s1)
 {
@@ -42,6 +32,20 @@ char	*ft_strdup(const char *s1)
 		ptr[i] = s1[i];
 	ptr[i] = 0;
 	return (ptr);
+}
+
+int	ft_strchr(char *s, char c)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == c)
+			return (i);
+		i++;
+	}
+	return (-1);
 }
 
 char	*ft_substr(char const *s, unsigned int start, size_t len)
@@ -69,6 +73,7 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	ptr[i] = 0;
 	return (ptr);
 }
+
 size_t	ft_strlen(const char *s)
 {
 	size_t	i;
@@ -118,54 +123,70 @@ char	*ft_strjoin(char const *s1, char const *s2)
 
 char	*get_next_line(int fd)
 {
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
 	static char	*buffer_reminder;
-	char	*str;
+	char	str[BUFFER_SIZE + 1] = {0};
 	char	*rtn;
-	static int	l;
+	char *temp;
+	int	l;
 	int	i = 0;
-	str = (char*)malloc(BUFFER_SIZE + 1);
-	str[BUFFER_SIZE + i] = 0;
 	rtn = malloc(1);
 	if (buffer_reminder)
 	{
-		while (buffer_reminder[i])
+		i = ft_strchr(buffer_reminder, '\n') ;
+		if (i > -1)
 		{
-			if (buffer_reminder[i] == '\n')
+			if (i < BUFFER_SIZE)
 			{
-				if (i < (int)ft_strlen(buffer_reminder))
-				{
-					rtn = ft_substr(buffer_reminder, 0 , i);
-					buffer_reminder = ft_substr(buffer_reminder, i + 1, (ft_strlen(buffer_reminder) - i));
-					return rtn;
-				}
-				return (buffer_reminder);
+				free(rtn);
+				rtn = ft_substr(buffer_reminder, 0 , i + 1 );
+
+				temp = ft_substr(buffer_reminder, i + 1, (ft_strlen(buffer_reminder) - i - 1));
+				free(buffer_reminder);
+				buffer_reminder = temp;
+				return rtn;
 			}
-			i++;
+			return (buffer_reminder);
 		}
-		rtn = ft_strjoin(rtn, buffer_reminder);
+		temp = ft_strjoin(rtn, buffer_reminder);
+		free(rtn);
+		rtn = temp;
+		free(buffer_reminder);
 	}
 	l = read(fd, str, BUFFER_SIZE);
-	while (l)
+	if (!l)
 	{
-		i = 0;
-		while (str[i])
-		{
-			if (str[i] == '\n')
-			{
-				if (i < BUFFER_SIZE)
-					buffer_reminder = ft_substr(str, i + 1, (BUFFER_SIZE - i));
-				str[i + 1] = 0;
-				return (ft_strjoin(rtn, str));
-			}
-			if (!str[i + 1])
-			{
-				rtn = ft_strjoin(rtn, str);
-			}
-			i++;
-		}
-		ft_bzero(str, BUFFER_SIZE + 1);
-		l = read(fd, str, BUFFER_SIZE);
+		free(rtn);
+		return (NULL);
 	}
+	while (l > 0)
+	{
+		i = ft_strchr(str, '\n') ;
+		if (i > -1)
+		{
+			if (i < l - 1)
+				buffer_reminder = ft_substr(str, i + 1, (l - i - 1));
+			str[i + 1] = 0;
+			temp = ft_strjoin(rtn, str);
+			free(rtn);
+			rtn = temp;
+			return (rtn);
+		}
+		else 
+		{
+			temp = ft_strjoin(rtn, str);
+			free(rtn);
+			rtn = temp;
+		}
+		l = read(fd, str, BUFFER_SIZE);
+		str[l] = 0;
+	}
+	if(!l && rtn)
+	{
+		return rtn;
+	}
+	free(rtn);
 	return (NULL);
 }
 
@@ -173,7 +194,6 @@ int	main(void)
 {
 	int fd = open("anas.txt", O_RDWR);
 	char	*str = get_next_line(fd);
-	printf("%s", str);
 	while (str)
 	{
 		printf("%s", str);
