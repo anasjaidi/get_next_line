@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "get_next_line.h"
 
 char	*ft_strdup(const char *s1)
 {
@@ -104,6 +104,12 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		return (NULL);
 	i1 = ft_strlen(s1);
 	i2 = ft_strlen(s2);
+	if (!s1)
+	{
+		ptr = malloc(i2 + 1);
+		ft_memmove(ptr, s2, i2 + 1);
+		return (ptr);
+	}
 	ptr = (char *)malloc((i1 + i2) * sizeof(char) + 1);
 	if (!ptr)
 		return (NULL);
