@@ -1,4 +1,4 @@
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 //#define BUFFER_SIZE 42
 
@@ -89,7 +89,7 @@ int	check_reminder(char **buffer_reminder, char **rtn)
 char	*get_next_line(int fd)
 {
 	char		*buffer;
-	static char	*buffer_reminder;
+	static char	*buffer_reminder[1024];
 	int			l;
 	char	*rtn;
 //	char		*temp;
@@ -97,13 +97,13 @@ char	*get_next_line(int fd)
 	rtn = NULL;
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	if (buffer_reminder && check_reminder(&buffer_reminder, &rtn))
+	if (buffer_reminder[fd] && check_reminder(&buffer_reminder[fd], &rtn))
 		return (rtn);
 	buffer = malloc(BUFFER_SIZE + 1);
 	l = read(fd, buffer, BUFFER_SIZE);
 	while (l > 0)
 	{
-		if (get_line(buffer, &buffer_reminder, l, &rtn))
+		if (get_line(buffer, &buffer_reminder[fd], l, &rtn))
 		{
 			free(buffer);
 			return (rtn);
