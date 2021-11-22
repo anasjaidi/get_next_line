@@ -1,6 +1,16 @@
-#include "get_next_line_bonus.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ajaidi <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/11/17 08:50:47 by ajaidi            #+#    #+#             */
+/*   Updated: 2021/11/22 01:51:07 by ajaidi           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-//#define BUFFER_SIZE 42
+#include "get_next_line_bonus.h"
 
 void	send_line(char *buffer, char **buffer_reminder, int l, char	**rtn)
 {
@@ -16,7 +26,7 @@ void	send_line(char *buffer, char **buffer_reminder, int l, char	**rtn)
 			free(*buffer_reminder);
 			*buffer_reminder = temp;
 		}
-		else if (buffer[i+1] != 0)
+		else if (buffer[i + 1] != 0)
 			*buffer_reminder = ft_substr(buffer, i + 1, (l - i - 1));
 	}
 	buffer[i + 1] = 0;
@@ -24,7 +34,7 @@ void	send_line(char *buffer, char **buffer_reminder, int l, char	**rtn)
 		*rtn = ft_strdup(buffer);
 	else
 	{	
-		temp = ft_strjoin(*rtn , buffer);
+		temp = ft_strjoin(*rtn, buffer);
 		free(*rtn);
 		*rtn = temp;
 	}
@@ -70,7 +80,7 @@ int	check_reminder(char **buffer_reminder, char **rtn)
 		if (i < size - 1)
 		{
 			*rtn = ft_substr(*buffer_reminder, 0, i + 1);
-			temp = ft_substr(*buffer_reminder, i + 1, (ft_strlen(*buffer_reminder) - i - 1));
+			temp = ft_substr(*buffer_reminder, i + 1, (size - i - 1));
 			free(*buffer_reminder);
 			*buffer_reminder = temp;
 			return (1);
@@ -91,8 +101,7 @@ char	*get_next_line(int fd)
 	char		*buffer;
 	static char	*buffer_reminder[1024];
 	int			l;
-	char	*rtn;
-//	char		*temp;
+	char		*rtn;
 
 	rtn = NULL;
 	if (fd < 0 || BUFFER_SIZE <= 0)
@@ -110,16 +119,6 @@ char	*get_next_line(int fd)
 		}
 		l = read(fd, buffer, BUFFER_SIZE);
 	}
-	/*
-	if (rtn)
-	{
-		temp = rtn;
-		rtn = NULL;
-		free(buffer);
-		return (temp);
-	}
-	// free(rtn);
-	// */
 	free(buffer);
 	return (rtn);
 }

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ajaidi <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/11/14 14:51:33 by ajaidi            #+#    #+#             */
+/*   Updated: 2021/11/22 01:51:46 by ajaidi           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line_bonus.h"
 
 char	*ft_strdup(const char *s1)
@@ -68,43 +80,25 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-void	*ft_memmove(void *dst, const void *src, size_t len)
-{
-	size_t	i;
-
-	i = -1;
-	if (dst > src)
-		while (len--)
-			*(char *)(dst + len) = *(char *)(src + len);
-	else if (src > dst)
-		while (++i < len)
-			*(char *)(dst + i) = *(char *)(src + i);
-	return (dst);
-}
-
 char	*ft_strjoin(char const *s1, char const *s2)
 {
 	int		i1;
-	int		i2;
+	int		i;
 	char	*ptr;
+	int		j;
 
+	i = -1;
+	j = -1;
 	if (!s2)
 		return (NULL);
-	i1 = ft_strlen(s1);
-	i2 = ft_strlen(s2);
-	/*
-	if (!s1)
-	{
-		ptr = malloc(i2 + 1);
-		ft_memmove(ptr, s2, i2 + 1);
-		return (ptr);
-	}
-	*/
-	ptr = (char *)malloc((i1 + i2) * sizeof(char) + 1);
+	i1 = ft_strlen(s1) + ft_strlen(s2);
+	ptr = (char *)malloc(i1 * sizeof(char) + 1);
 	if (!ptr)
 		return (NULL);
-	ft_memmove(ptr, s1, i1);
-	ft_memmove(ptr + i1, s2, i2);
-	ptr[i1 + i2] = 0;
+	while (s1[++i])
+		ptr[i] = s1[i];
+	while (s2[++j])
+		ptr[i++] = s2[j];
+	ptr[i] = 0;
 	return (ptr);
 }
